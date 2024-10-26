@@ -1,0 +1,16 @@
+{
+  "paperangularapp": {
+    "master": ["/src/app/something", "/src/app/something2"],
+    "feat/save-as-draft_CU-86cwqulak": [
+      "src/app/something/long/in/embed/kyc",
+      "src/app/something/long/in/embed/kyc2",
+      "src/app/something/long/in/embed/kyc3",
+      "src/app/something/long/in/embed/kyc4",
+      "src/app/something/long/in/embed/kyc5",
+      "src/app/something/long/in/embed/kyc6"
+    ]
+  },
+  "milky-way": {
+    "master": ["/src/usecase/whatever", "/src/usecase/whatever2"]
+  }
+}
