@@ -62,15 +62,20 @@ M._create_poondir = function(poondir)
 end
 
 M._create_poonstack_file = function(cwd, poondir)
+	-- if not git tracked, don't create file
+	if vim.fn.system("git branch"):find("fatal") then
+		return
+	end
+
 	local poonstack_file = M.get_poonstack_file(cwd)
 	local poonstack_path = M.get_poonstack_path(cwd, poondir)
 
 	if vim.fn.filereadable(poonstack_path) == 1 then
-		return -- don't create file if already exists
+		return poonstack_file, poonstack_path -- don't create file if already exists
 	end
 
-	if vim.fn.writefile({}, poonstack_path) == -1 then
-		return
+	if vim.fn.writefile({}, poonstack_path) then
+		return -- error when creating file
 	end
 
 	return poonstack_file, poonstack_path
@@ -117,6 +122,10 @@ M.pop = function(branch)
 
 	branch = branch:trim()
 	local poonstack_json = vim.fn.readfile(M.config.poonstack_path)
+	if #poonstack_json == 0 then
+		return
+	end
+
 	local poonstack = vim.fn.json_decode(poonstack_json)
 
 	for _, poon in ipairs(poonstack[branch]) do
