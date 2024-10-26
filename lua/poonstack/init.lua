@@ -16,7 +16,8 @@ local M = {}
 -- with :set undodir?.
 
 -- functions we need:
--- - require("harpoon"):list (?) -> get the list
+-- - require("harpoon"):list().items -> get the list
+-- - require("harpoon"):list():add() -> add to list
 -- - vim.fn.writefile() -> save to file
 -- - vim.fn.readfile() -> read from the json file
 -- - vim.fn.json_decode() -> decode the readfile() results
