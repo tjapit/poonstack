@@ -36,12 +36,14 @@ end
 M.config = {
 	cwd = vim.fn.getcwd(),
 	poondir = os.getenv("HOME") .. "/.local/state/nvim/poonstack",
+	poonstack = "",
+	poonstack_path = "",
 }
 
 M.setup = function(config)
 	M.config = vim.tbl_deep_extend("force", M.config, config or {})
 	M._create_poondir(M.config.poondir)
-	M.config.poonfile, M.config.poonfile_path = M._create_poonfile(M.config.cwd, M.config.poondir)
+	M.config.poonstack, M.config.poonstack_path = M._create_poonstack(M.config.cwd, M.config.poondir)
 end
 
 M._create_poondir = function(poondir)
@@ -59,15 +61,15 @@ M._create_poondir = function(poondir)
 	end
 end
 
-M._create_poonfile = function(cwd, poondir)
-	local poonfile = M.get_poonfile(cwd)
-	local poonfile_path = M.get_poonfile_path(cwd, poondir)
+M._create_poonstack = function(cwd, poondir)
+	local poonstack = M.get_poonstack(cwd)
+	local poonstack_path = M.get_poonstack_path(cwd, poondir)
 
-	if vim.fn.writefile({}, poonfile_path) == -1 then
+	if vim.fn.writefile({}, poonstack_path) == -1 then
 		return
 	end
 
-	return poonfile, poonfile_path
+	return poonstack, poonstack_path
 end
 
 ---Returns the filepath that stores the harpoon list for the current workking
@@ -77,26 +79,26 @@ end
 ---project directory name with a .json extension.
 ---
 ---@param cwd string current working directory
----@return string poonfile the poonfile that stores harpoon list
-M.get_poonfile = function(cwd)
+---@return string poonstack the poonstack file that stores harpoon list
+M.get_poonstack = function(cwd)
 	return cwd:gsub("/", "%%") .. ".json"
 end
 
----Returns the absolute path to the poonfile.
+---Returns the absolute path to the poonstack file.
 ---
 ---@param cwd string current working directory absolute path
 ---@param poondir string harpoon list storage directory absolute path
----@return string poonfile_path poonfile absolute path
-M.get_poonfile_path = function(cwd, poondir)
-	return poondir .. "/" .. M.get_poonfile(cwd)
+---@return string poonstack_path poonstack absolute path
+M.get_poonstack_path = function(cwd, poondir)
+	return poondir .. "/" .. M.get_poonstack(cwd)
 end
 
----Saves the current branch's harpoon list onto the poonfile
+---Pushes the current branch's harpoon list onto the poonstack file.
 --
 ---@param branch string current branch
 ---@param harpoon_list any items on the harpoon list
-M.save = function(branch, harpoon_list)
-	if not vim.fn.filereadable(M.poonfile_path) then
+M.push = function(branch, harpoon_list)
+	if not vim.fn.filereadable(M.poonstack_path) then
 		return
 	end
 
@@ -104,11 +106,7 @@ M.save = function(branch, harpoon_list)
 	local poonlist_json = vim.json.encode({
 		[branch] = harpoon_list,
 	})
-	vim.fn.writefile({ poonlist_json }, M.config.poonfile_path)
-end
-
-M.push = function(branch)
-	-- code
+	vim.fn.writefile({ poonlist_json }, M.config.poonstack_path)
 end
 
 ---Returns the harpoon list for the given branch
@@ -117,8 +115,7 @@ M.pop = function(branch)
 end
 
 M.setup()
-M.save(vim.fn.system("git branch --show-current"), harpoon:list().items)
-M.push(vim.fn.system("git branch --show-current"))
+M.push(vim.fn.system("git branch --show-current"), harpoon:list().items)
 --[[
 lua require("poonstack").push("master", {
   {
