@@ -194,4 +194,8 @@ lua require("poonstack").push("master", {
 lua require("poonstack").pop("master")
 --]]
 
+M._clear = function()
+	M._poonstack = {}
+end
+
 return M

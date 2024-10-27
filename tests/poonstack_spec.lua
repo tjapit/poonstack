@@ -1,4 +1,9 @@
 describe("poonstack", function()
+	before_each(function()
+		require("poonstack")._clear()
+		require("harpoon"):list():clear()
+	end)
+
 	it("can be required", function()
 		require("poonstack")
 	end)
@@ -21,7 +26,7 @@ describe("poonstack", function()
 	it("can push multiple items", function()
 		local exp_item1 = {
 			context = { row = 0, col = 0 },
-			value = "README.md",
+			value = "lua/poonstack/init.lua",
 		}
 		local exp_item2 = {
 			context = { row = 0, col = 0 },
@@ -34,6 +39,6 @@ describe("poonstack", function()
 		poonstack.load() -- poonstack -> harpoon
 
 		local actual = require("harpoon"):list().items
-		assert.are.same(expected, actual, "should have a two items: README.md and .gitignore")
+		assert.are.same(expected, actual, "should have a two items: lua/poonstack/init.lua and .gitignore")
 	end)
 end)
