@@ -156,7 +156,7 @@ end
 
 ---Pushes the current branch's harpoon list onto the poonstack.
 --
----@param harpoon_list any items on the harpoon list
+---@param harpoon_list table items on the harpoon list
 M.push = function(harpoon_list)
 	M._poonstack[M.config.branch] = harpoon_list
 end
@@ -176,8 +176,8 @@ end
 M.setup()
 -- M.push(vim.fn.system("git branch --show-current"), harpoon:list().items)
 -- M.pop(vim.fn.system("git branch --show-current"))
-M.read()
-M.load(vim.fn.system("git branch --show-current"))
+-- M.read()
+-- M.load(vim.fn.system("git branch --show-current"))
 
 --[[
 lua require("poonstack").push("master", {
