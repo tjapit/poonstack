@@ -33,9 +33,18 @@ string.trim = function(s)
 	return string.gsub(s, "^%s*(.-)%s*$", "%1")
 end
 
+---Check if project is tracked by Git.
+---@return boolean istracked true if tracked, false otherwise
+local istracked = function()
+	if vim.fn.system("git branch"):find("fatal") then
+		return false
+	end
+	return true
+end
+
 M.config = {
 	cwd = vim.fn.getcwd(),
-	cwb = vim.fn.system("git branch --show-current"),
+	branch = vim.fn.system("git branch --show-current"):trim(),
 	poonstack_dir = os.getenv("HOME") .. "/.local/state/nvim/poonstack",
 }
 
@@ -43,44 +52,51 @@ M._poonstack = {}
 
 M.setup = function(config)
 	M.config = vim.tbl_deep_extend("force", M.config, config or {})
-	M._create_poondir(M.config.poonstack_dir)
-	M.config.poonstack_file, M.config.poonstack_filepath =
-		M._create_poonstack_file(M.config.cwd, M.config.poonstack_dir)
+
+	local err = M._create_poonstack_dir()
+	if err then
+		vim.notify(err, vim.log.levels.ERROR)
+	end
+
+	err = M._create_poonstack_file()
+	if err then
+		vim.notify(err, vim.log.levels.ERROR)
+	end
 end
 
-M._create_poondir = function(poonstack_dir)
+M._create_poonstack_dir = function()
 	-- 1 if path is directory
 	-- 0 if path not diirectory or not exists
 	-- nil on error
-	if vim.fn.isdirectory(poonstack_dir) then
+	if vim.fn.isdirectory(M.config.poonstack_dir) then
 		return
 	end
 
 	-- returns 1 if created, 0 if already exists
 	-- nil if error during creation
-	if not vim.fn.mkdir(poonstack_dir) then
+	if not vim.fn.mkdir(M.config.poonstack_dir) then
 		return -- failed to create directory
 	end
 end
 
-M._create_poonstack_file = function(cwd, poonstack_dir)
+---Creates poonstack file and assigns the path and filename to M.config
+---@return nil|string error nil on success, error message on error
+M._create_poonstack_file = function()
 	-- if not git tracked, don't create file
-	if vim.fn.system("git branch"):find("fatal") then
+	if not istracked() then
 		return
 	end
 
-	local poonstack_file = M.get_poonstack_file(cwd)
-	local poonstack_filepath = M.get_poonstack_path(cwd, poonstack_dir)
+	M.config.poonstack_file = M.get_poonstack_file()
+	M.config.poonstack_filepath = M.get_poonstack_filepath()
 
-	if vim.fn.filereadable(poonstack_filepath) == 1 then
-		return poonstack_file, poonstack_filepath -- don't create file if already exists
+	if vim.fn.filereadable(M.config.poonstack_filepath) == 1 then
+		return -- don't create file if already exists
 	end
 
-	if vim.fn.writefile({}, poonstack_filepath) then
-		return -- error when creating file
+	if vim.fn.writefile({}, M.config.poonstack_filepath) == -1 then
+		return "error creating poonstack file" -- error when creating file
 	end
-
-	return poonstack_file, poonstack_filepath
 end
 
 ---Returns the filepath that stores the harpoon list for the current workking
@@ -89,19 +105,16 @@ end
 ---It replaces all the slashes (/) with percents (%) and the ends with the
 ---project directory name with a .json extension.
 ---
----@param cwd string current working directory
----@return string poonstack the poonstack file that stores harpoon list
-M.get_poonstack_file = function(cwd)
-	return cwd:gsub("/", "%%") .. ".json"
+---@return string poonstack_file the poonstack file that stores harpoon list
+M.get_poonstack_file = function()
+	return M.config.cwd:gsub("/", "%%") .. ".json"
 end
 
 ---Returns the absolute path to the poonstack file.
 ---
----@param cwd string current working directory absolute path
----@param poonstack_dir string harpoon list storage directory absolute path
 ---@return string poonstack_filepath poonstack absolute path
-M.get_poonstack_path = function(cwd, poonstack_dir)
-	return poonstack_dir .. "/" .. M.get_poonstack_file(cwd)
+M.get_poonstack_filepath = function()
+	return M.config.poonstack_dir .. "/" .. M.get_poonstack_file()
 end
 
 ---Writes the poonstack to the given file.
@@ -118,11 +131,15 @@ end
 
 ---Reads from the poonstack file and loads it to the poonstack
 M.read = function()
-	if not vim.fn.filereadable(M.config.poonstack_filepath) then
-		return
+	if vim.fn.filereadable(M.config.poonstack_filepath) == 0 then
+		return "file does not exist/not readable"
 	end
 
 	local poonstack_json = vim.fn.readfile(M.config.poonstack_filepath)
+	if poonstack_json == {} then
+		return "empty poonstack file"
+	end
+
 	if #poonstack_json == 0 then
 		return
 	end
@@ -131,34 +148,29 @@ M.read = function()
 end
 
 ---Loads the harpoon list of the current branch from poonstack -> harpoon
-M.load = function(branch)
-	branch = branch:trim()
-	for _, poon in ipairs(M._poonstack[branch]) do
+M.load = function()
+	for _, poon in ipairs(M._poonstack[M.config.branch]) do
 		harpoon:list():add(poon)
 	end
 end
 
 ---Pushes the current branch's harpoon list onto the poonstack.
 --
----@param branch string current branch
 ---@param harpoon_list any items on the harpoon list
-M.push = function(branch, harpoon_list)
-	branch = branch:trim()
-	M._poonstack[branch] = harpoon_list
+M.push = function(harpoon_list)
+	M._poonstack[M.config.branch] = harpoon_list
 end
 
 ---Returns the harpoon list for the given branch off the poonstack
 ---
 ---Does not actually pop it off the stack.
----@param branch string current working branch
 ---@return table|nil poon table with harpoon items, each containing context (row, col) and filepath
-M.pop = function(branch)
+M.pop = function()
 	if #M._poonstack == 0 then
 		return
 	end
 
-	branch = branch:trim()
-	return M._poonstack[branch]
+	return M._poonstack[M.config.branch]
 end
 
 M.setup()
