@@ -35,40 +35,40 @@ end
 
 M.config = {
 	cwd = vim.fn.getcwd(),
-	poondir = os.getenv("HOME") .. "/.local/state/nvim/poonstack",
+	poonstack_dir = os.getenv("HOME") .. "/.local/state/nvim/poonstack",
 	poonstack_file = "",
 	poonstack_path = "",
 }
 
 M.setup = function(config)
 	M.config = vim.tbl_deep_extend("force", M.config, config or {})
-	M._create_poondir(M.config.poondir)
-	M.config.poonstack_file, M.config.poonstack_path = M._create_poonstack_file(M.config.cwd, M.config.poondir)
+	M._create_poondir(M.config.poonstack_dir)
+	M.config.poonstack_file, M.config.poonstack_path = M._create_poonstack_file(M.config.cwd, M.config.poonstack_dir)
 end
 
-M._create_poondir = function(poondir)
+M._create_poondir = function(poonstack_dir)
 	-- 1 if path is directory
 	-- 0 if path not diirectory or not exists
 	-- nil on error
-	if vim.fn.isdirectory(poondir) then
+	if vim.fn.isdirectory(poonstack_dir) then
 		return
 	end
 
 	-- returns 1 if created, 0 if already exists
 	-- nil if error during creation
-	if not vim.fn.mkdir(poondir) then
+	if not vim.fn.mkdir(poonstack_dir) then
 		return -- failed to create directory
 	end
 end
 
-M._create_poonstack_file = function(cwd, poondir)
+M._create_poonstack_file = function(cwd, poonstack_dir)
 	-- if not git tracked, don't create file
 	if vim.fn.system("git branch"):find("fatal") then
 		return
 	end
 
 	local poonstack_file = M.get_poonstack_file(cwd)
-	local poonstack_path = M.get_poonstack_path(cwd, poondir)
+	local poonstack_path = M.get_poonstack_path(cwd, poonstack_dir)
 
 	if vim.fn.filereadable(poonstack_path) == 1 then
 		return poonstack_file, poonstack_path -- don't create file if already exists
@@ -96,10 +96,10 @@ end
 ---Returns the absolute path to the poonstack file.
 ---
 ---@param cwd string current working directory absolute path
----@param poondir string harpoon list storage directory absolute path
+---@param poonstack_dir string harpoon list storage directory absolute path
 ---@return string poonstack_path poonstack absolute path
-M.get_poonstack_path = function(cwd, poondir)
-	return poondir .. "/" .. M.get_poonstack_file(cwd)
+M.get_poonstack_path = function(cwd, poonstack_dir)
+	return poonstack_dir .. "/" .. M.get_poonstack_file(cwd)
 end
 
 ---Pushes the current branch's harpoon list onto the poonstack file.
