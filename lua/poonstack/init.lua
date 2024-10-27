@@ -35,15 +35,17 @@ end
 
 M.config = {
 	cwd = vim.fn.getcwd(),
+	cwb = vim.fn.system("git branch --show-current"),
 	poonstack_dir = os.getenv("HOME") .. "/.local/state/nvim/poonstack",
-	poonstack_file = "",
-	poonstack_path = "",
 }
+
+M._poonstack = {}
 
 M.setup = function(config)
 	M.config = vim.tbl_deep_extend("force", M.config, config or {})
 	M._create_poondir(M.config.poonstack_dir)
-	M.config.poonstack_file, M.config.poonstack_path = M._create_poonstack_file(M.config.cwd, M.config.poonstack_dir)
+	M.config.poonstack_file, M.config.poonstack_filepath =
+		M._create_poonstack_file(M.config.cwd, M.config.poonstack_dir)
 end
 
 M._create_poondir = function(poonstack_dir)
@@ -68,17 +70,17 @@ M._create_poonstack_file = function(cwd, poonstack_dir)
 	end
 
 	local poonstack_file = M.get_poonstack_file(cwd)
-	local poonstack_path = M.get_poonstack_path(cwd, poonstack_dir)
+	local poonstack_filepath = M.get_poonstack_path(cwd, poonstack_dir)
 
-	if vim.fn.filereadable(poonstack_path) == 1 then
-		return poonstack_file, poonstack_path -- don't create file if already exists
+	if vim.fn.filereadable(poonstack_filepath) == 1 then
+		return poonstack_file, poonstack_filepath -- don't create file if already exists
 	end
 
-	if vim.fn.writefile({}, poonstack_path) then
+	if vim.fn.writefile({}, poonstack_filepath) then
 		return -- error when creating file
 	end
 
-	return poonstack_file, poonstack_path
+	return poonstack_file, poonstack_filepath
 end
 
 ---Returns the filepath that stores the harpoon list for the current workking
@@ -97,45 +99,74 @@ end
 ---
 ---@param cwd string current working directory absolute path
 ---@param poonstack_dir string harpoon list storage directory absolute path
----@return string poonstack_path poonstack absolute path
+---@return string poonstack_filepath poonstack absolute path
 M.get_poonstack_path = function(cwd, poonstack_dir)
 	return poonstack_dir .. "/" .. M.get_poonstack_file(cwd)
 end
 
----Pushes the current branch's harpoon list onto the poonstack file.
+---Writes the poonstack to the given file.
+---
+---Converts the poonstack into json before writing it to the file.
+---
+---@param file string path to the file to save to
+---@return nil|string result nil on success, error message on error
+M.write = function(file)
+	-- write from M._poonstack to file
+	local poonstack_json = vim.fn.json_encode(M._poonstack)
+	return vim.fn.writefile({ poonstack_json }, file)
+end
+
+---Reads from the poonstack file and loads it to the poonstack
+M.read = function()
+	if not vim.fn.filereadable(M.config.poonstack_filepath) then
+		return
+	end
+
+	local poonstack_json = vim.fn.readfile(M.config.poonstack_filepath)
+	if #poonstack_json == 0 then
+		return
+	end
+
+	M._poonstack = vim.fn.json_decode(poonstack_json)
+end
+
+---Loads the harpoon list of the current branch from poonstack -> harpoon
+M.load = function(branch)
+	branch = branch:trim()
+	for _, poon in ipairs(M._poonstack[branch]) do
+		harpoon:list():add(poon)
+	end
+end
+
+---Pushes the current branch's harpoon list onto the poonstack.
 --
 ---@param branch string current branch
 ---@param harpoon_list any items on the harpoon list
 M.push = function(branch, harpoon_list)
 	branch = branch:trim()
-	local poonlist_json = vim.fn.json_encode({
-		[branch] = harpoon_list,
-	})
-	vim.fn.writefile({ poonlist_json }, M.config.poonstack_path)
+	M._poonstack[branch] = harpoon_list
 end
 
----Returns the poonstack for the given branch and loads it to harpoon
+---Returns the harpoon list for the given branch off the poonstack
+---
+---Does not actually pop it off the stack.
+---@param branch string current working branch
+---@return table|nil poon table with harpoon items, each containing context (row, col) and filepath
 M.pop = function(branch)
-	if not vim.fn.filereadable(M.config.poonstack_path) then
+	if #M._poonstack == 0 then
 		return
 	end
 
 	branch = branch:trim()
-	local poonstack_json = vim.fn.readfile(M.config.poonstack_path)
-	if #poonstack_json == 0 then
-		return
-	end
-
-	local poonstack = vim.fn.json_decode(poonstack_json)
-
-	for _, poon in ipairs(poonstack[branch]) do
-		harpoon:list():add(poon)
-	end
+	return M._poonstack[branch]
 end
 
 M.setup()
 -- M.push(vim.fn.system("git branch --show-current"), harpoon:list().items)
-M.pop(vim.fn.system("git branch --show-current"))
+-- M.pop(vim.fn.system("git branch --show-current"))
+M.read()
+M.load(vim.fn.system("git branch --show-current"))
+
 --[[
 lua require("poonstack").push("master", {
   {
