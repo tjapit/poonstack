@@ -3,11 +3,11 @@
 inspo: [TJ DeVries - Neovim Lua Plugin From Scratch](https://www.youtube.com/watch?v=n4Lp4cV8YR0&ab_channel=TJDeVries)
 
 <br>
-<h2 style="text-align:center;border:none;"> 
-    <code>harpoon</code> 
-    +
-    <code>stackmap</code> 
-</h2>
+<div align="center">
+    <h3> 
+        <code>harpoon</code> + <code>stackmap</code> 
+    </h3>
+</div>
 <br>
 
 Inspired by teej's video on making Neovim Lua Plugin From Scratch and because I
