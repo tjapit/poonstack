@@ -1,19 +1,21 @@
 # poonstack.nvim
 
-inspo: [TJ DeVries - Neovim Lua Plugin From Scratch](https://www.youtube.com/watch?v=n4Lp4cV8YR0&ab_channel=TJDeVries)
-
-<br>
 <div align="center">
+<br>
     <h3> 
         <code>harpoon</code> + <code>stackmap</code> 
     </h3>
-</div>
 <br>
+    <h3>in development</h3>
+<br>
+</div>
 
-Inspired by teej's video on making Neovim Lua Plugin From Scratch and because I
+Inspired by teej's video on making Neovim Lua Plugin From Scratch[^teej-neovim-plugin] and because I
 need something like this for work.
 
-Problem
+[^teej-neovim-plugin]: [TJ DeVries - Neovim Lua Plugin From Scratch](https://www.youtube.com/watch?v=n4Lp4cV8YR0&ab_channel=TJDeVries)
+
+## Problem
 
 > I have a hard time switching between tasks, the cost of context switching is
 > sometimes too big depending on the task. Sometimes there's just sudden bugs
@@ -34,7 +36,7 @@ Problem
 > tutorial on making a Neovim plugin with Lua from scratch. So... why not just
 > make my own plugin?
 
-Ideation
+## Ideation
 
 > The idea of having a stack to pop off and push on list of `harpoon` items
 > came from teej's `stackmap.nvim`, where you sort of pop off/on keymaps based
