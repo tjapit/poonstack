@@ -10,4 +10,4 @@
 -- 	value = "README.md",
 -- })
 -- P(harpoon:list().items)
-require("poonstack")
+require("poonstack").setup()
