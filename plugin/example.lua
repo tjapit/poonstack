@@ -1,4 +1,4 @@
-vim.notify("Hello, Tim")
+-- vim.notify("Hello, Tim")
 
 -- testing reading from json and decoding
 -- local harpoon = require("harpoon")
