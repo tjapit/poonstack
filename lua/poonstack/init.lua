@@ -88,6 +88,15 @@ M.setup = function(config)
 		})
 	end, {})
 
+	local poonstack_augroup = vim.api.nvim_create_augroup("Poonstack", {})
+	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+		group = poonstack_augroup,
+		callback = function()
+			M.push()
+			M.write()
+		end,
+	}) -- write to poonstack file after saving buffer to file
+
 	harpoon:list():clear() -- override harpoon persistence
 	M.read() -- file > poonstack
 	M.pop() -- poonstack > harpoon
