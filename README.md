@@ -17,6 +17,9 @@ need something like this for work.
 - [Problem](#Problem)
 - [Solution](#Solution)
 - [Installation](#Installation)
+- [Configuration](#Configuration)
+- [Usage](#Usage)
+
 
 ## Documentation
 
@@ -98,4 +101,22 @@ TODO: add configuration options
 
 ```lua
 require("poonstack").setup()
+```
+
+## Usage
+
+Simply,
+
+```
+:PoonstackGitCheckout
+```
+
+This opens up a `telescope` window to checkout your new branch, and then `poonstack` 
+will handle the autosaving of your current branch's harpoon'd files and autoloading 
+of the harpoon'd files for that new branch.
+
+Or what I like todo,
+
+```lua
+vim.keymap.set("n", "<leader>pgc", "<CMD>PoonstackGitCheckout<CR>", { desc = "get yer poons right 'ere" })
 ```
