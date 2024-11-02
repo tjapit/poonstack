@@ -1,0 +1,18 @@
+================================================================================
+                                                               *poonstack.nvim*
+
+This plugin helps you to keep track of all your harpoons in different git
+branches of the same project. It will automagically load your the files you've
+harpoon'd on any given branch.
+
+                                                             *poonstack.push()*
+poonstack.push() 
+
+  Pushes the current branch's harpoon > poonstack. 
+
+                                                              *poonstack.pop()*
+poonstack.pop()
+
+  Pops the poon of the current branch from poonstack > harpoon.
+
+vim:tw=78:ts=8:ft=help:norl:

@@ -6,14 +6,31 @@
         <code>harpoon</code> + <code>stackmap</code> 
     </h3>
 <br>
-    <h3>in development</h3>
-<br>
 </div>
 
 Inspired by teej's video on making Neovim Lua Plugin From Scratch[^teej-neovim-plugin] and because I
 need something like this for work.
 
 [^teej-neovim-plugin]: [TJ DeVries - Neovim Lua Plugin From Scratch](https://www.youtube.com/watch?v=n4Lp4cV8YR0&ab_channel=TJDeVries)
+
+- [Documentation](#Documentation)
+- [Problem](#Problem)
+- [Solution](#Solution)
+- [Installation](#Installation)
+
+## Documentation
+
+See `:help poonstack.nvim`
+
+`poonstack` keeps track of your harpoons on a per-branch basis within a
+project. If you're like me and you have trouble context-switching on the job,
+when there's an urgent bug that needs hotfixing, you might have to delete your
+current harpoon'd files and start over to trace the bug.
+
+This plugin tries to ease that burden so that when you create a new `hotfix`
+branch, you can breathe in peace knowing that the harpoon'd files for the
+`feature` that you were working on is safely stored and will automagically load
+back in when you switch back from your `hotfix` to `feature` branch.
 
 ## Problem
 
@@ -36,7 +53,7 @@ need something like this for work.
 > tutorial on making a Neovim plugin with Lua from scratch. So... why not just
 > make my own plugin?
 
-## Ideation
+## Solution
 
 > The idea of having a stack to pop off and push on list of `harpoon` items
 > came from teej's `stackmap.nvim`, where you sort of pop off/on keymaps based
@@ -58,29 +75,27 @@ need something like this for work.
     [poon](https://www.urbandictionary.com/define.php?term=poon), get your mind
     out of the gutter.</small>
 
-## Functional Requirement
+## Installation
 
-1. It shall save the current branch's `harpoon` list to a `poonstack` file
+- Required plugins:
+  - `ThePrimeagen/harpoon`
+  - `nvim-telescope/telescope.nvim`
+- Install with your plugin manager of choice. The example below uses Packer,
 
-   1. It shall be named based on the absolute path of the current working
-      directory with its slashes (`/`) replaced with percents (`%`)
-   2. It shall be a `json` file
-      - e.g. `/Users/username/something/cool > %Users%username%something%cool.json`
+```lua
+use({
+  "tjapit/poonstack.nvim",
+  requires = {
+    "nvim-telescope/telescope.nvim",
+    "ThePrimeagen/harpoon"
+  }
+})
+```
 
-2. It shall save the `poonstack` file to a `poonstack` directory
+## Configuration
 
-   - e.g. `~/.local/state/nvim/poonstack/`
+TODO: add configuration options
 
-3. It shall save the current branch's `harpoon` list to the file on,
-
-   1. `BufWritePost`
-   2. `BufLeave`
-   3. Git branch switch
-
-4. It shall load the `harpoon` list from the `poonstack` file on,
-
-   1. Neovim startup
-   2. Git branch switch
-
-5. It shall NOT save/load the `harpoon` when the current working directory is not
-   tracked
+```lua
+require("poonstack").setup()
+```
