@@ -1,3 +1,4 @@
-poonstack.nvim	poonstack.txt	/*poonstack.nvim*
-poonstack.pop()	poonstack.txt	/*poonstack.pop()*
-poonstack.push()	poonstack.txt	/*poonstack.push()*
+:PoonstackGitCheckout	poonstack.txt	/*:PoonstackGitCheckout*
+poonstack	poonstack.txt	/*poonstack*
+poonstack-commands	poonstack.txt	/*poonstack-commands*
+poonstack.txt	poonstack.txt	/*poonstack.txt*

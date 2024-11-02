@@ -1,18 +1,29 @@
 ================================================================================
-                                                               *poonstack.nvim*
+*poonstack.txt*
+
+           Stack your harpoons right here. Switch branches with peace of mind.
+
+Author: Timothy Japit
+License: MIT
+
+Requires `ThePrimeagen/harpoon` and `nvim-telescope/telescope.nvim` to work.
+
+                                                                   *poonstack*
 
 This plugin helps you to keep track of all your harpoons in different git
 branches of the same project. It will automagically load your the files you've
 harpoon'd on any given branch.
 
-                                                             *poonstack.push()*
-poonstack.push() 
+                                                          *poonstack-commands*
 
-  Pushes the current branch's harpoon > poonstack. 
+The commands are local to the buffers in the current work directory (the
+project MUST be tracked by Git for this plugin to work)
 
-                                                              *poonstack.pop()*
-poonstack.pop()
+                                                       *:PoonstackGitCheckout*
 
-  Pops the poon of the current branch from poonstack > harpoon.
+It opens up a `telescope` window which you can navigate to pick a branch to
+checkout. Simply pick one and `poonstack` will automagically save harpoon from
+current branch and load the new ones in.
+
 
 vim:tw=78:ts=8:ft=help:norl:
