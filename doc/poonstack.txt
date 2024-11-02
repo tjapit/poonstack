@@ -21,8 +21,9 @@ you've harpoon'd on any given branch.
 USAGE                                                         *poonstack-usage*
 
 For basic setup:
-
-    require('poonstack').setup()
+>lua
+  require('poonstack').setup()
+<
 
 ==============================================================================
 
@@ -37,6 +38,14 @@ It opens up a `telescope` window which you can navigate to pick a branch to
 checkout. Simply pick one and `poonstack` will automagically save harpoon from
 current branch and load the new ones in.
 
+==============================================================================
+
+MAPPINGS                                                    *poonstack-mappings*
+
+No mappings are created automatically, but you can do something like,
+>lua
+  vim.keymap.set("n", "<leader>pgc", "<CMD>PoonstackGitCheckout<CR>", { desc = "get yer poons right here" })
+<
 
 ------------------------------------------------------------------------------
 vim:tw=78:ts=8:ft=help:norl:

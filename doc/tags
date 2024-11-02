@@ -1,5 +1,6 @@
 :PoonstackGitCheckout	poonstack.txt	/*:PoonstackGitCheckout*
 poonstack	poonstack.txt	/*poonstack*
 poonstack-commands	poonstack.txt	/*poonstack-commands*
+poonstack-mappings	poonstack.txt	/*poonstack-mappings*
 poonstack-usage	poonstack.txt	/*poonstack-usage*
 poonstack.txt	poonstack.txt	/*poonstack.txt*
