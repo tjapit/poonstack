@@ -1,7 +1,16 @@
+local harpoon = require("harpoon")
+local poonstack = require("poonstack")
+
+local function add_poons(poons)
+	for _, poon in ipairs(poons) do
+		harpoon:list():add(poon)
+	end
+end
+
 describe("poonstack", function()
 	before_each(function()
-		require("poonstack")._clear()
-		require("harpoon"):list():clear()
+		poonstack._clear()
+		harpoon:list():clear()
 	end)
 
 	it("can be required", function()
@@ -14,10 +23,10 @@ describe("poonstack", function()
 			value = "README.md",
 		}
 		local expected = { exp_item }
+		add_poons(expected)
 
-		local poonstack = require("poonstack")
-		poonstack.push(expected) -- -> poonstack
-		poonstack.load() -- poonstack -> harpoon
+		poonstack.push() -- -> poonstack
+		poonstack.pop() -- poonstack -> harpoon
 
 		local actual = require("harpoon"):list().items
 		assert.are.same(expected, actual, "should have a single item: README.md")
@@ -33,10 +42,10 @@ describe("poonstack", function()
 			value = ".gitignore",
 		}
 		local expected = { exp_item1, exp_item2 }
+		add_poons(expected)
 
-		local poonstack = require("poonstack")
-		poonstack.push(expected) -- -> poonstack
-		poonstack.load() -- poonstack -> harpoon
+		poonstack.push() -- -> poonstack
+		poonstack.pop() -- poonstack -> harpoon
 
 		local actual = require("harpoon"):list().items
 		assert.are.same(expected, actual, "should have a two items: lua/poonstack/init.lua and .gitignore")
