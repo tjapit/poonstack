@@ -1,61 +1,9 @@
-local M = {}
-
--- M.setup = function(opts)
--- 	print("Options:", opts)
--- end
-
--- Idea:
--- save to a json file, example of this can be seen in example.json
---
--- main key would be the repos, and then inside each repos would have
--- their own branches. The branch_names would hold an array of filepaths
--- that was stored in harpoon.
---
--- we need somewhere to store that .json file. Idea would be to copy what
--- undotree did (e.g. ~/.local/state/nvim/poonstack), check what they do
--- with :set undodir?.
-
--- functions we need:
--- - require("harpoon"):list().items -> get the list
--- - require("harpoon"):list():add() -> add to list
--- - vim.fn.writefile() -> save to file
--- - vim.fn.readfile() -> read from the json file
--- - vim.fn.json_decode() -> decode the readfile() results
-
+local utils = require("poonstack.utils")
 local harpoon = require("harpoon")
 local actions = require("telescope.actions")
 local actions_state = require("telescope.actions.state")
 
----Trims the whitespace from the start and end of a string.
---
----@param s string
----@return string
----@return integer count
-string.trim = function(s)
-	return string.gsub(s, "^%s*(.-)%s*$", "%1")
-end
-
----Check if project is tracked by Git.
----@return boolean istracked true if tracked, false otherwise
-local istracked = function()
-	if vim.fn.system("git branch"):find("fatal") then
-		return false
-	end
-	return true
-end
-
----Override telescope.builtin.git_branches() with
----@param prompt_bufnr any
-local poonstack_git_checkout = function(prompt_bufnr)
-	local selection = actions_state.get_selected_entry()
-	if selection then
-		local branch = selection.value
-
-		actions.git_checkout(prompt_bufnr)
-
-		M.on_switch_branch(branch)
-	end
-end
+local M = {}
 
 M.config = {
 	cwd = vim.fn.getcwd(),
@@ -81,8 +29,8 @@ M.setup = function(config)
 	vim.api.nvim_create_user_command("PoonstackGitCheckout", function()
 		require("telescope.builtin").git_branches({
 			attach_mappings = function(_, map)
-				map("i", "<CR>", poonstack_git_checkout)
-				map("n", "<CR>", poonstack_git_checkout)
+				map("i", "<CR>", M.poonstack_git_checkout)
+				map("n", "<CR>", M.poonstack_git_checkout)
 				return true
 			end,
 		})
@@ -100,6 +48,19 @@ M.setup = function(config)
 	harpoon:list():clear() -- override harpoon persistence
 	M.read() -- file > poonstack
 	M.pop() -- poonstack > harpoon
+end
+
+---Override telescope.builtin.git_branches() with
+---@param prompt_bufnr any
+M.poonstack_git_checkout = function(prompt_bufnr)
+	local selection = actions_state.get_selected_entry()
+	if selection then
+		local branch = selection.value
+
+		actions.git_checkout(prompt_bufnr)
+
+		M.on_switch_branch(branch)
+	end
 end
 
 ---Does the book-keeping when switching branches
@@ -135,7 +96,7 @@ end
 ---@return nil|string error nil on success, error message on error
 M._create_poonstack_file = function()
 	-- if not git tracked, don't create file
-	if not istracked() then
+	if not utils.istracked() then
 		return
 	end
 
@@ -220,21 +181,6 @@ M.push = function()
 	local poon = harpoon:list().items
 	M._poonstack[M.config.branch] = poon
 end
-
---[[
-lua require("poonstack").push("master", {
-  {
-    context = {
-      row = 0,
-      col = 0,
-    },
-    value = "src/app/auth/embed-kyc.component.ts"
-  },
-  ...
-})
-
-lua require("poonstack").pop("master")
---]]
 
 M._clear = function()
 	M._poonstack = {}
