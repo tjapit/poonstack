@@ -37,7 +37,7 @@ M.setup = function(config)
 	end, {})
 
 	local poonstack_augroup = vim.api.nvim_create_augroup("Poonstack", {})
-	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+	vim.api.nvim_create_autocmd({ "BufWritePost", "BufLeave", "FocusLost" }, {
 		group = poonstack_augroup,
 		callback = function()
 			M.push()
